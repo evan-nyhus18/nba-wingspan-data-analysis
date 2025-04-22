@@ -1,0 +1,7 @@
+numpy>=1.25.0           # array math
+pandas>=2.0.1           # data loading & wrangling
+matplotlib>=3.8.0       # static plots
+seaborn>=0.12.2         # statistical visualizations
+scipy>=1.10.0           # stats (ANOVA, pearsonr)
+scikit-learn>=1.2.2     # regression, pipelines, train/test split
+notebook>=6.5.0         # notebook execution

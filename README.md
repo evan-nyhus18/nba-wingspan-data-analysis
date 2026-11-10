@@ -1,26 +1,63 @@
+# NBA Wingspan vs. Performance
 
----
+Does wingspan, a measurement that gets less attention than height, predict how well NBA players perform? This project combines three public datasets to find out. It analyzes guards, forwards, and centers separately.
 
-## 3. NBA Wingspan Data Analysis (`nba-wingspan-analysis`)
+![Wingspan vs. RAPTOR correlation for centers](figures/centers_raptor_correlation_heatmap.png)
 
-### 📘 README.md
-```markdown
-# NBA Wingspan vs. Height Analysis
+## Key findings
 
-**Statistical exploration of NBA players’ wingspan relative to height**  
-_Analysis split by guards vs. forwards, includes data cleaning and visual insights._
+- **Overall, wingspan is a weak predictor of performance.** The correlation between wingspan and total RAPTOR for centers is **0.19**.
+- **Among centers, wingspan matters more than height,** especially for defensive RAPTOR. This fits the idea that length helps with rim protection.
+- **Among guards, height is slightly more important than wingspan.** Offensive RAPTOR correlates more with size than defensive RAPTOR does.
+- **Among forwards,** every player with a RAPTOR above 5 has an above-average wingspan for their position. Length (wingspan minus height) correlates with RAPTOR more strongly than wingspan alone.
+- **A random forest model** predicted defensive field-goal percentage with a correlation of **0.56** between predicted and actual values (p ≈ 0.003). Some predictions have wide error bars.
 
-![Guard Scatter](figures/guards_scatter.png)  ![Forward Boxplot](figures/forwards_boxplot.png)
+![Random forest predictions with error bars](figures/random_forest_regression_with_error_bars.png)
 
-**Tech Stack:**  
-![Python](https://img.shields.io/badge/python-3.10-blue)  
-![Pandas](https://img.shields.io/badge/pandas-2.0.1-blue)  
-![Matplotlib](https://img.shields.io/badge/matplotlib-3.8.0-orange)  
-![Jupyter](https://img.shields.io/badge/jupyter-notebook-orange)
+## Data
 
-## Installation & Usage
+| Source | What it provides |
+|---|---|
+| [CraftedNBA](https://craftednba.com/) | Height, wingspan, and length by position |
+| [FiveThirtyEight modern RAPTOR](https://github.com/fivethirtyeight/data/tree/master/nba-raptor) | Offensive, defensive, and total player value |
+| [NBA.com advanced stats](https://www.nba.com/stats) | Defensive field-goal percentage (DFG%) |
+
+The raw CSV files are not included in this repo (`data/*.csv` is gitignored). Download them from the sources above and place them in `data/`.
+
+## Method
+
+1. **Cleaning.** Convert height and wingspan strings (for example `6'10"`) to inches.
+2. **Noise reduction.** Average up to five seasons per player, and keep players with more than 400 minutes played.
+3. **Merging.** Join the datasets on player name.
+4. **Analysis.** For each position, check the height–wingspan correlation, plot wingspan against RAPTOR, and build correlation heatmaps.
+5. **Modeling.** Regression and random forest models predict DFG% from body measurements. Results include error bars and significance tests.
+
+## Limitations
+
+- The method CraftedNBA used to collect wingspan measurements is unknown.
+- Some groups are very small. For example, one guard has a 6'1" wingspan.
+- **Survivorship bias:** undersized players who perform poorly get cut, so the remaining players are not a random sample.
+- Joining on player name can silently drop players whose names are spelled differently across sources.
+- Assumptions: players did not change positions over the five-season window.
+
+## Repository structure
+
+```
+notebooks/Wingspans.ipynb   Full analysis (written for Google Colab)
+src/data_processing.py      Height and wingspan parsing helpers
+src/analysis.py             RAPTOR merge, scatter plots, correlations
+figures/                    Saved plots
+```
+
+## Run it
+
 ```bash
-git clone https://github.com/evan-nyhus18/nba-wingspan-analysis.git
-cd nba-wingspan-analysis
+git clone https://github.com/evan-nyhus18/nba-wingspan-data-analysis.git
+cd nba-wingspan-data-analysis
 pip install -r requirements.txt
-jupyter notebook notebooks/wingspan_analysis.ipynb
+jupyter notebook notebooks/Wingspans.ipynb
+```
+
+The notebook was written for Google Colab. Before running it locally, remove the `drive.mount(...)` cell and update the file paths to point at `data/`.
+
+**Tech stack:** Python, pandas, NumPy, seaborn, matplotlib, SciPy, scikit-learn
